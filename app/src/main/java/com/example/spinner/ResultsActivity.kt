@@ -1,10 +1,10 @@
 package com.example.spinner
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
@@ -27,6 +27,7 @@ class ResultsActivity : AppCompatActivity() {
     private fun mostrar(){
         loadInitialData()
         showSpinner()
+        deleteCareer()
         buttonsActions()
     }
     private fun loadInitialData(){
@@ -63,7 +64,6 @@ class ResultsActivity : AppCompatActivity() {
     }
 
     private fun buttonsActions(){
-
         resultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ){result ->
@@ -74,6 +74,7 @@ class ResultsActivity : AppCompatActivity() {
 
         clickButtonNewCareer()
         clickButtonNewFaculty()
+        clickButtonDelete()
         clickButtonGoBack()
     }
 
@@ -86,12 +87,12 @@ class ResultsActivity : AppCompatActivity() {
             resultLauncher.launch(intent)
         }
     }
-
+    //TODO-- FALTA ACCION DE ELIMINAR CARRERA Y/O FACULTAD
     private fun clickButtonNewFaculty(){
         val newFacultyButton = findViewById<Button>(R.id.newFacultyButtonID)
         newFacultyButton.setOnClickListener {
             val intent = Intent(this,NewFacultyActivity::class.java)
-            startActivity(intent)
+            resultLauncher.launch(intent)
         }
     }
 
@@ -117,5 +118,48 @@ class ResultsActivity : AppCompatActivity() {
         )
         val listView = findViewById<ListView>(R.id.listViewID)
         listView.adapter = listAdapter
+    }
+
+    private fun clickButtonDelete(){
+
+        val deleteButton = findViewById<Button>(R.id.deleteButtonID)
+        deleteButton.setOnClickListener {
+
+            val dialog = AlertDialog.Builder(this)
+            dialog.setTitle("Borrar Facultad")
+            dialog.setMessage("Esta seguro que desea eliminar la facultad $nameFaculty")
+
+            dialog.setPositiveButton("Si"){dialogInterface,i ->
+                //Boton SI
+                facultyAdmin.deleteFaculty(nameFaculty)
+                showSpinner()
+            }
+            dialog.setNegativeButton("No"){dialogInterface,i ->
+                dialogInterface.dismiss()
+            }
+            dialog.show()
+        }
+
+    }
+
+    private fun deleteCareer(){
+        val list = findViewById<ListView>(R.id.listViewID)
+        list.onItemLongClickListener = AdapterView.OnItemLongClickListener { adapterView, view, position, id ->
+            val careerName = careerList[position]
+
+            val dialog = AlertDialog.Builder(this)
+            dialog.setTitle("Borrar Carrera")
+            dialog.setMessage("Esta seguro que desea eliminar la carrera")
+            dialog.setPositiveButton("Si"){dialogInterface,i ->
+                //Boton SI
+                facultyAdmin.deleteCareer(careerName)
+                showSpinner()
+            }
+            dialog.setNegativeButton("No"){dialogInterface,i ->
+                dialogInterface.dismiss()
+            }
+            dialog.show()
+            true
+        }
     }
 }

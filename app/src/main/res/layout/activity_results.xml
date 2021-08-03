@@ -58,6 +58,14 @@
         android:text="Nueva Facultad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/deleteButtonID"
+        />
+
+    <Button
+        android:id="@+id/deleteButtonID"
+        android:text="Eliminar Facultad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/goBackButtonID"
         />
 

@@ -1,16 +1,16 @@
 package com.example.spinner
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 
 class NewFacultyActivity : AppCompatActivity() {
 
+    val facultyAdmin = AdministrarFacultad()
     lateinit var nameFaculty: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,24 +22,33 @@ class NewFacultyActivity : AppCompatActivity() {
 
     private fun completarFormulario(){
 
-        clickNewCareerButton()
+        buttonsActions()
+    }
+
+    private fun buttonsActions(){
+        clickNewFacultyButton()
         clickGoBackButton()
     }
 
-    private fun clickNewCareerButton() {
-        val careerButton = findViewById<Button>(R.id.careerButtonID)
-        careerButton.setOnClickListener {
-            val name = getFacultyName()
-            if(name != ""){
-                val intent = Intent(this,NewCareerActivity::class.java)
-                intent.putExtra("nameFaculty",name)
-                startActivity(intent)
+    private fun clickNewFacultyButton(){
+        val enterButton = findViewById<Button>(R.id.enterButtonID)
+
+        enterButton.setOnClickListener {
+            val nameFaculty = getFacultyName()
+            if(nameFaculty!=""){
+                if(!facultyAdmin.existFaculty(nameFaculty)){
+                    val intent = Intent(this,NewCareerActivity::class.java)
+                    intent.putExtra("nameFaculty",nameFaculty)
+                    startActivity(intent)
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }else{
+                    Toast.makeText(this,"Facultad existente. Ingrese nuevo nombre",
+                        Toast.LENGTH_SHORT).show()
+                }
             }else{
-                Toast.makeText(this, "Se debe ingresar un nombre",
+                Toast.makeText(this,"Debe ingresar un nombre",
                     Toast.LENGTH_SHORT).show()
-                nameFaculty.requestFocus()
-                val imm: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(nameFaculty,InputMethodManager.SHOW_IMPLICIT)
             }
         }
     }
