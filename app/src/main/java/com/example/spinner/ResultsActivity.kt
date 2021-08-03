@@ -1,34 +1,39 @@
 package com.example.spinner
 
+import android.app.Activity
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 
 class ResultsActivity : AppCompatActivity() {
 
-    val facultyAdmin = AdministrarFacultad()
+    private val facultyAdmin = AdministrarFacultad()
     lateinit var spinnerArray: ArrayList<String>
-    var careerList= ArrayList<String>()
+    private var careerList= ArrayList<String>()
+    private var nameFaculty: String = ""
+    lateinit var resultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_results)
         mostrar()
     }
-    fun mostrar(){
+
+    private fun mostrar(){
         loadInitialData()
         showSpinner()
-        clickButtonNewFaculty()
-
+        buttonsActions()
     }
     private fun loadInitialData(){
         if(!facultyAdmin.facultyExists())
             facultyAdmin.initialCharge()//cargo unos datos al inicio
-        else
-            println("Tendria que entrar aca la segunda vez")
     }
-    fun showSpinner(){
+    private fun showSpinner(){
         val spinner = findViewById<Spinner>(R.id.spinnerID)
 
         //TODO--> Se muestra el spinner
@@ -47,8 +52,8 @@ class ResultsActivity : AppCompatActivity() {
                     id: Long
                 ) {
                     //TODO--> cuando se selecciona un item del spinner
-                    val item = parent?.getItemAtPosition(position) as String
-                    createListByPosition(item)
+                    nameFaculty = parent?.getItemAtPosition(position) as String
+                    createListByPosition(nameFaculty)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -57,8 +62,41 @@ class ResultsActivity : AppCompatActivity() {
             }
     }
 
-    fun clickButtonNewFaculty(){
-        val goBackButton = findViewById<Button>(R.id.goBackID)
+    private fun buttonsActions(){
+
+        resultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ){result ->
+            if(result.resultCode == Activity.RESULT_OK){
+                showSpinner()
+            }
+        }
+
+        clickButtonNewCareer()
+        clickButtonNewFaculty()
+        clickButtonGoBack()
+    }
+
+    private fun clickButtonNewCareer(){
+
+        val newCareerButton = findViewById<Button>(R.id.newCareerButtonID)
+        newCareerButton.setOnClickListener {
+            val intent = Intent(this,NewCareerActivity::class.java)
+            intent.putExtra("nameFaculty",nameFaculty)
+            resultLauncher.launch(intent)
+        }
+    }
+
+    private fun clickButtonNewFaculty(){
+        val newFacultyButton = findViewById<Button>(R.id.newFacultyButtonID)
+        newFacultyButton.setOnClickListener {
+            val intent = Intent(this,NewFacultyActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun clickButtonGoBack(){
+        val goBackButton = findViewById<Button>(R.id.goBackButtonID)
         goBackButton.setOnClickListener {
             onBackPressed()
         }
@@ -69,11 +107,10 @@ class ResultsActivity : AppCompatActivity() {
     }
 
     private fun createListByPosition(item:String){
-        //tiene q limpiar aca y desp pedir los datos nuevos
         careerList.clear()
         careerList = facultyAdmin.getAllCareersOfFaculty(item)!!
 
-        var listAdapter = ArrayAdapter(
+        val listAdapter = ArrayAdapter(
             AppSpinner.CONTEXT,
             android.R.layout.simple_list_item_1,
             careerList
