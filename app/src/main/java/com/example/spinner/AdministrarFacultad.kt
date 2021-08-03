@@ -10,7 +10,7 @@ class AdministrarFacultad {
 
     val resultsArray = ArrayList<String>()
 
-    //TODO-->se crea una carga inicial
+    /***CARGA INICIAL DE DATOS**/
     fun initialCharge(){
         val arrayFacultiesNames = arrayOf("Informatica","Ingenieria","Economia y Administración")
 
@@ -34,7 +34,7 @@ class AdministrarFacultad {
             else -> arrayListOf()
         }
     }
-
+    /***SE OBTIENE TODOS LOS NOMBRES DE LAS FACULTADES EXISTENTES**/
     fun getAllName(): ArrayList<String>?{
         try {
             val namesArray = arrayListOf<String>()
@@ -62,7 +62,7 @@ class AdministrarFacultad {
             return null
         }
     }
-
+    /***SE OBTIENE TODAS LAS CARRERAS DE UNA FACULTAD**/
     fun getAllCareersOfFaculty(name:String): ArrayList<String>?{
         try{
             val database = AppSpinner.DATA_BASE.readableDatabase
@@ -100,7 +100,7 @@ class AdministrarFacultad {
             return null
         }
     }
-
+    /***SE AGREGA UNA NUEVA FACULTAD A LA BASE DE DATOS**/
     fun addFaculty(faculty:Faculty){
         try{
             val database = AppSpinner.DATA_BASE.writableDatabase
@@ -116,7 +116,7 @@ class AdministrarFacultad {
                 Toast.LENGTH_SHORT).show()
         }
     }
-
+    /***BORRRAR FACULTAD DE LA BASE DE DATOS**/
     fun deleteFaculty(name:String){
         try{
             val db = AppSpinner.DATA_BASE.writableDatabase
@@ -129,21 +129,61 @@ class AdministrarFacultad {
                 "No se elimino el dato seleccionado",Toast.LENGTH_SHORT).show()
         }
     }
+    /***BORRAR UNA CARRERA DE LA BASE DE DATOS**/
+    fun deleteCareer(name: String){
+        try {
+            val database = AppSpinner.DATA_BASE.writableDatabase
+            val qry = "DELETE FROM ${AppSpinner.DB_TABLE_FACULTAD} "+
+                    "WHERE ${Contract.Faculty.career} == '$name';"
+            database.execSQL(qry)
+            database.close()
+        }catch (ex:Exception){
+            Toast.makeText(AppSpinner.CONTEXT,
+                "No se elimino el dato seleccionado",Toast.LENGTH_SHORT).show()
+        }
+    }
 
+    /***SE VERIFICA SI EXISTEN DATOS CARGADOS**/
     fun facultyExists():Boolean{
-        var exito = false
+        var isEmptyDataBase = false
         try {
             val database = AppSpinner.DATA_BASE.readableDatabase
             val numData = DatabaseUtils.queryNumEntries(database,AppSpinner.DB_TABLE_FACULTAD).toInt()
 
             if(numData > 0)
-                exito = true
+                isEmptyDataBase = true
 
             database.close()
         }catch(ex:Exception){
             Toast.makeText(AppSpinner.CONTEXT,"Problemas al leer la base de datos",
                 Toast.LENGTH_SHORT).show()
         }
-        return exito
+        return isEmptyDataBase
+    }
+    /***SE VERIFICA SI EXISTE UNA FACULTAD EN LA BASE DE DATOS**/
+    fun existFaculty(nameFaculty: String): Boolean {
+        var isExistingName = false
+        try {
+            val database = AppSpinner.DATA_BASE.readableDatabase
+            val numData = DatabaseUtils.queryNumEntries(database,AppSpinner.DB_TABLE_FACULTAD).toInt()
+
+            if(numData > 0){//existen datos guardados
+                val qry = "SELECT ${Contract.Faculty.name} FROM ${AppSpinner.DB_TABLE_FACULTAD}"
+                val cursorName = database.rawQuery(qry,null)
+
+                cursorName.moveToFirst()//inicio de la tabla
+                do{
+                    val name = cursorName.getString(cursorName.getColumnIndex(Contract.Faculty.name))
+                    if(nameFaculty == name)
+                        isExistingName = true
+                }while (cursorName.moveToNext() && !isExistingName)
+            }
+            database.close()
+        }catch (ex:Exception){
+            Toast.makeText(AppSpinner.CONTEXT,"Problemas al leer la base de datos",
+                Toast.LENGTH_SHORT).show()
+
+        }
+        return isExistingName
     }
 }
