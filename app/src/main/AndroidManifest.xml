@@ -10,7 +10,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Spinner">
-        <activity android:name=".ResultsActivity"></activity>
+        <activity android:name=".NewCareerActivity"></activity>
+        <activity android:name=".NewFacultyActivity" />
+        <activity android:name=".ResultsActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
