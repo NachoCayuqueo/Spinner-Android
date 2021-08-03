@@ -10,11 +10,4 @@ class Contract {
             val career = "carrera"
         }
     }
-    class CollegeCareer{
-        companion object{
-            val id = "id"
-            val name = "nombre"
-            val facultyName = "facultad"
-        }
-    }
 }

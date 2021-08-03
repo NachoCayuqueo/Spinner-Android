@@ -12,7 +12,6 @@ class AppSpinner: Application() {
         val VERSION = 1
 
         val DB_TABLE_FACULTAD = "tbFacultad"
-        val DB_TABLE_CARRERA = "tbCarrera"
     }
 
     override fun onCreate() {
